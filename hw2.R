@@ -21,14 +21,22 @@ anemia2 <- read_sas("~/WORKING_DIRECTORIES/biostat.675/anemia2.sas7bdat")
 
 anemia2 <- mutate(anemia2, under20 = 1*(age <= 19))
 
+# Logrank Test based on Age Group (rho set to 0)
+LRT_age <- survdiff(Surv(obs_time,GVHD) ~ under20, data = anemia2, rho = 0)
+# Wilcoxon Test based on Age Group (rho set to 1)
+WXT_age <- survdiff(Surv(obs_time,GVHD) ~ under20, data = anemia2, rho = 1)
+
+# Plot of Survival Function
 fit_age <- survfit(Surv(obs_time,GVHD) ~ under20, data = anemia2)
 plot01 <- autoplot(fit_age, conf.int = FALSE) +
   ggtitle("Survival Function by Age Group")
-fit_age$surv <- -log(fit_age$surv)
+# Plot of Cumulative Hazard Function
+fit_age$surv <- -log(fit_age$surv) # transforms survival probabilities
 plot02 <- autoplot(fit_age, conf.int = FALSE, surv.connect = FALSE) +
   ggtitle("Cumulative Hazard Function by Age Group") +
   ylab("-log(surv)")
-fit_age$surv <- log(fit_age$surv)
+# Plot of Log Cumulative Hazard Function
+fit_age$surv <- log(fit_age$surv) # transforms cumulative hazard probabilities
 plot03 <- autoplot(fit_age, conf.int = FALSE, surv.connect = FALSE) +
   ggtitle("Log Cumulative Hazard Function by Age Group") +
   ylab("log(-log(surv))")
@@ -39,14 +47,22 @@ plot03
 
 #     (ii) LAF
 
+# Logrank Test based on LAF (rho set to 0)
+LRT_laf <- survdiff(Surv(obs_time,GVHD) ~ LAF, data = anemia2, rho = 0)
+# Wilcoxon Test based on LAF (rho set to 1)
+WXT_laf <- survdiff(Surv(obs_time,GVHD) ~ LAF, data = anemia2, rho = 1)
+
+# Plot of Survival Function
 fit_laf <- survfit(Surv(obs_time,GVHD) ~ LAF, data = anemia2)
 plot04 <- autoplot(fit_laf, conf.int = FALSE) +
   ggtitle("Survival Function by LAF")
-fit_laf$surv <- -log(fit_laf$surv)
+# Plot of Cumulative Hazard Function
+fit_laf$surv <- -log(fit_laf$surv) # transforms survival probabilities
 plot05 <- autoplot(fit_laf, conf.int = FALSE, surv.connect = FALSE) +
   ggtitle("Cumulative Hazard Function by LAF") +
   ylab("-log(surv)")
-fit_laf$surv <- log(fit_laf$surv)
+# Plot of Log Cumulative Hazard Function
+fit_laf$surv <- log(fit_laf$surv) # transforms cumulative hazard probabilities
 plot06 <- autoplot(fit_laf, conf.int = FALSE, surv.connect = FALSE) +
   ggtitle("Log Cumulative Hazard Function by LAF") +
   ylab("log(-log(surv))")
@@ -57,14 +73,22 @@ plot06
 
 #     (iii) use of both CSP and MTX (versus not)
 
+# Logrank Test based on CSP_MTX (rho set to 0)
+LRT_csp <- survdiff(Surv(obs_time,GVHD) ~ CSP_MTX, data = anemia2, rho = 0)
+# Wilcoxon Test based on CSP_MTX (rho set to 1)
+WXT_csp <- survdiff(Surv(obs_time,GVHD) ~ CSP_MTX, data = anemia2, rho = 1)
+
+# Plot of Survival Function
 fit_cm <- survfit(Surv(obs_time,GVHD) ~ CSP_MTX, data = anemia2)
 plot07 <- autoplot(fit_cm, conf.int = FALSE) +
   ggtitle("Survival Function by CSP_MTX")
-fit_cm$surv <- -log(fit_cm$surv)
+# Plot of Cumulative Hazard Function
+fit_cm$surv <- -log(fit_cm$surv) # transforms survival probabilities
 plot08 <- autoplot(fit_cm, conf.int = FALSE, surv.connect = FALSE) +
   ggtitle("Cumulative Hazard Function by CSP_MTX") +
   ylab("-log(surv)")
-fit_cm$surv <- log(fit_cm$surv)
+# Plot of Log Cumulative Hazard Function
+fit_cm$surv <- log(fit_cm$surv) # transforms cumulative hazard probabilities
 plot09 <- autoplot(fit_cm, conf.int = FALSE, surv.connect = FALSE) +
   ggtitle("Log Cumulative Hazard Function by CSP_MTX") +
   ylab("log(-log(surv))")
@@ -72,16 +96,3 @@ plot09 <- autoplot(fit_cm, conf.int = FALSE, surv.connect = FALSE) +
 plot07
 plot08
 plot09
-
-
-
-anemia2 <- arrange(anemia2, obs_time)
-anemia2$atRisk <- c(64:59,59,57,56,55,55,53,53,rep(51,4),47,47,45:24,rep(23,23))
-anemia2 <- subset(anemia2, GVHD == 1)
-
-chf <- vector()
-chf[1] <- 1/anemia2$atRisk[1]
-for(i in 2:nrow(anemia2)){
-  chf[i] <- chf[i-1] + 1/anemia2$atRisk[i]
-}
-anemia2 <- mutate(anemia2,chf)
