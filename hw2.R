@@ -121,13 +121,27 @@ U_comb <- U_1 + U_2 # 0.252 + 5.467 = 5.718
 V_comb <- V_1 + V_2 # 1.218 + 3.522 = 4.740
 LRT_comb <- U_comb^2/V_comb # 6.897
 
+# (d) With respect to the CSP_MTX effect, briefly describe what, in aggregate,
+#     your tests indicate regarding confounding and/or interaction.
+
+LRT_comb
+1 - pchisq(LRT_comb,1)
+glance(LRT_csp)
+# Since the stratified and unstratified are similar,
+# there does NOT appear to be confounding present. 
+
+glance(LRT_csp_str01)
+glance(LRT_csp_str02)
+# Since the CSP_MTX effect appears to be different among the two age groups,
+# there does appear to be an interaction between age group and CSP_MTX.
+
 # Problem 2 -----------------------------------------------------------------------
 
 anemia2 <- arrange(anemia2, obs_time)
 anemia2$atRisk <- c(64:59,59,57,56,55,55,53,53,rep(51,4),47,47,45:24,rep(23,23))
 anemia2 <- mutate(anemia2, hazard = GVHD/atRisk) # compute hazard function
 
-b <- 4 # specify desired bandwidth
+b <- 10 # specify desired bandwidth
 # plot smoothed hazard estimator for b < t < t_n - b
 time <- c((10*b):(10*(max(anemia2$obs_time[anemia2$GVHD==1]-b))))/10
 
