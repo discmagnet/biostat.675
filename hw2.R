@@ -24,8 +24,10 @@ anemia2 <- mutate(anemia2, under20 = 1*(age <= 19))
 
 # Logrank Test based on Age Group (rho set to 0)
 LRT_age <- survdiff(Surv(obs_time,GVHD) ~ under20, data = anemia2, rho = 0)
+glance(LRT_age)
 # Wilcoxon Test based on Age Group (rho set to 1)
 WXT_age <- survdiff(Surv(obs_time,GVHD) ~ under20, data = anemia2, rho = 1)
+glance(WXT_age)
 
 # Plot of Survival Function
 fit_age <- survfit(Surv(obs_time,GVHD) ~ under20, data = anemia2)
@@ -50,8 +52,10 @@ plot03
 
 # Logrank Test based on LAF (rho set to 0)
 LRT_laf <- survdiff(Surv(obs_time,GVHD) ~ LAF, data = anemia2, rho = 0)
+glance(LRT_laf)
 # Wilcoxon Test based on LAF (rho set to 1)
 WXT_laf <- survdiff(Surv(obs_time,GVHD) ~ LAF, data = anemia2, rho = 1)
+glance(WXT_laf)
 
 # Plot of Survival Function
 fit_laf <- survfit(Surv(obs_time,GVHD) ~ LAF, data = anemia2)
@@ -76,8 +80,10 @@ plot06
 
 # Logrank Test based on CSP_MTX (rho set to 0)
 LRT_csp <- survdiff(Surv(obs_time,GVHD) ~ CSP_MTX, data = anemia2, rho = 0)
+glance(LRT_csp)
 # Wilcoxon Test based on CSP_MTX (rho set to 1)
 WXT_csp <- survdiff(Surv(obs_time,GVHD) ~ CSP_MTX, data = anemia2, rho = 1)
+glance(WXT_csp)
 
 # Plot of Survival Function
 fit_cm <- survfit(Surv(obs_time,GVHD) ~ CSP_MTX, data = anemia2)
@@ -103,9 +109,17 @@ plot09
 # Logrank Test based on CSP_MTX (rho set to 0)
 LRT_csp_str01 <- survdiff(Surv(obs_time,GVHD) ~ CSP_MTX, data = anemia2, rho = 0,
                     subset = (under20 == 1))
+U_1 <- tidy(LRT_csp_str01)$obs[1] - tidy(LRT_csp_str01)$exp[1] # O-E
+V_1 <- U_1^2/glance(LRT_csp_str01)$statistic # V = (0-E)^2/test_stat
 # Logrank Test based on CSP_MTX (rho set to 0)
 LRT_csp_str02 <- survdiff(Surv(obs_time,GVHD) ~ CSP_MTX, data = anemia2, rho = 0,
                     subset = (under20 == 0))
+U_2 <- tidy(LRT_csp_str02)$obs[1] - tidy(LRT_csp_str02)$exp[1]
+V_2 <- U_2^2/glance(LRT_csp_str02)$statistic
+# Combining the results
+U_comb <- U_1 + U_2 # 0.252 + 5.467 = 5.718
+V_comb <- V_1 + V_2 # 1.218 + 3.522 = 4.740
+LRT_comb <- U_comb^2/V_comb # 6.897
 
 # Problem 2 -----------------------------------------------------------------------
 
