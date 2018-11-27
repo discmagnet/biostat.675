@@ -20,6 +20,7 @@
 #   DIABETES: indicator that diabetes was the cause of renal failure
 #   COMORBID: number of comorbid conditions (illnesses, not counting ESRD,
 #   existing at the time of transplant)
+library(haven)
 kidney_data <- read_sas("~/WORKING_DIRECTORIES/biostat.675/kidney_ecd_1.sas7bdat")
 
 # FROM HOMEWORK 5.3(a)
@@ -98,21 +99,52 @@ asthma <- read_sas("~/WORKING_DIRECTORIES/biostat.675/asthma_1.sas7bdat")
 #   URBAN: indicator for living in an urban (as opposed to rural) area
 #   RESP_DIST: indicator for experiencing respiratory distress at birth
 
+# Note that all dates are formatted as an integer, representing the number
+# of days beyond January 1, 1960.
+
+# Create new variables
+# Time-to-event
+max_days <- as.numeric(as.Date("1999-12-31") - as.Date("1960-01-01"))
+asthma$time_to_event <- 0
+for(i in 1:nrow(asthma)){
+  if(is.na(asthma$dt_asthma[i])){
+    asthma$time_to_event[i] <- max_days - asthma$dt_birth[i]
+  } else{
+    asthma$time_to_event[i] <- asthma$dt_asthma[i] - asthma$dt_birth[i]
+  }
+}
+# Male indicator
+asthma <- mutate(asthma, male = 1*(sex == "M"))
+# Asthma indicator
+asthma <- mutate(asthma, asth = 1*!(is.na(dt_asthma)))
+
 # (a) Fit a model which assumes proportionality for all covariates. Code BWT as a
 #     continuous covariate. Which factors appear to significantly affect asthma
 #     incidence?
+model03 <- coxph(data = asthma,
+                 formula = Surv(time_to_event, asth) ~ bwt + male + urban + resp_dist)
+summary(model03)
 
 # (b) Repeat (a), but code BWT using an indicator for low birth weight (defined as
 #     weighing <= 2.5 kg). Compare the parameter estimates with those from (a) and
 #     comment on the similarities and/or differences.
+asthma <- mutate(asthma, lbw = 1*(bwt <= 2.5))
+model04 <- coxph(data = asthma,
+                 formula = Surv(time_to_event, asth) ~ lbw + male + urban + resp_dist)
+summary(model04)
 
 # (c) Suppose, for part (c) only, that RESP_DIST was of no interest, except as an
 #     adjustment covariate. Suppose also that you have no knowledge (an no desire
 #     to learn) about the nature of theh non-proportionality. Fit an appropriate
 #     model, and briefly defend your choice.
+model05 <- coxph(data = asthma,
+                 formula = Surv(time_to_event, asth) ~ lbw + male + urban +
+                   strata(resp_dist))
+summary(model05)
 
 # (d) Fit a model which assumes that the RESP_DIST effect follows a year-specific
 #     step function. Interpret the RESP_DIST effect, as estimated from this model.
+
 
 # (e) Plot the age-specific RESP_DIST against the year mid-points. Describe the shape
 #     of the plot and its implications (if any) for modelling the RESP_DIST effect.
