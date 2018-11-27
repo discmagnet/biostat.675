@@ -20,25 +20,65 @@
 #   DIABETES: indicator that diabetes was the cause of renal failure
 #   COMORBID: number of comorbid conditions (illnesses, not counting ESRD,
 #   existing at the time of transplant)
-kidney <- read_sas("~/WORKING_DIRECTORIES/biostat.675/kidney_ecd_1.sas7bdat")
+kidney_data <- read_sas("~/WORKING_DIRECTORIES/biostat.675/kidney_ecd_1.sas7bdat")
 
 # FROM HOMEWORK 5.3(a)
 #     Fit a model which contains only factors known at the time of transplant (t = 0).
 #     List the factors that significantly predict death.
-kidney2 <- mutate(kidney,
-                  death = 1-is.na(time_to_death),
-                  time_to_event = time_to_death)
-for(i in 1:nrow(kidney2)){
-  if(is.na(kidney2$time_to_event[i])){
-    kidney2$time_to_event[i] <- kidney2$time_to_censor[i]
+library(dplyr)
+library(survival)
+kidney <- mutate(kidney_data,
+                 death = 1-is.na(time_to_death),
+                 time_to_event = time_to_death)
+for(i in 1:nrow(kidney)){
+  if(is.na(kidney$time_to_event[i])){
+    kidney$time_to_event[i] <- kidney$time_to_censor[i]
   }
 }
-model4 <- coxph(data = kidney2,
+model01 <- coxph(data = kidney,
                 formula = Surv(time_to_event, death) ~ age + 
                   male + diabetes + comorbid + ECD)
-summary(model4)
+summary(model01)
 
 # (a) Fit a model with graft failure (GF) as a time-dependent covariate.
+
+# put into time-dependent format
+kidney$t1 <- 0
+kidney$t2 <- 0
+kidney$GF <- 0
+kidney$death_new <- 0
+kidA <- kidney
+kidB <- kidney
+kidC <- kidney
+for(i in 1:nrow(kidney)){
+  if(is.na(kidney$time_to_GF[i]) == F){
+    kidA$t1[i] <- 0
+    kidB$t1[i] <- kidney$time_to_GF[i]
+    kidA$t2[i] <- kidney$time_to_GF[i]
+    kidB$t2[i] <- kidney$time_to_event[i]
+    kidA$GF[i] <- 0
+    kidB$GF[i] <- 1
+    kidA$death_new[i] <- 0
+    kidB$death_new[i] <- kidney$death[i]
+  } else{
+    kidC$t1[i] <- 0
+    kidC$t2[i] <- kidney$time_to_event[i]
+    kidC$GF[i] <- 0
+    kidC$death_new[i] <- kidney$death[i]
+  }
+}
+kidA <- subset(kidA,is.na(kidney$time_to_GF) == F)
+kidB <- subset(kidB,is.na(kidney$time_to_GF) == F)
+kidC <- subset(kidC,is.na(kidney$time_to_GF) == T)
+kidney_TD <- rbind(kidA,kidB,kidC)
+kidney_TD <- arrange(kidney_TD, idnum)
+
+# now fit the model
+model02 <- coxph(data = kidney_TD,
+                 formula = Surv(t1, t2, death_new) ~ age + 
+                   male + diabetes + comorbid + ECD + GF)
+summary(model02)
+
 
 # Problem 2 - Asthma remains one of the most common chronic childhood illnesses, and
 # a leading cause of hospital admissions. The file, asthma_1.sas7bdat contains data
