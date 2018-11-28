@@ -163,10 +163,11 @@ summary(model06)
 
 # (f) Fit a model wherein the RESP_DIST regression coefficient is assumed to change
 #     linearly with age (scaled to years). Interpret your parameter estimates.
-asthma <- mutate(asthma, resp_int = resp_dist*time_to_event/365)
 model07 <- coxph(data = asthma,
-                 formula = Surv(time_to_event, asth) ~ lbw + male + urban +
-                   resp_dist + resp_int)
+                 formula = Surv(time_to_event, asth) ~ lbw + male + urban + resp_dist +
+                   tt(resp_dist),
+                 tt = function(x,t,...) x*t/365)
 summary(model07)
+
 # (g) Based on the model in (f), estimate the age at which children with and without
 #     RESP_DIST have equal asthma hazard.
