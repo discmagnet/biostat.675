@@ -144,15 +144,17 @@ summary(model05)
 
 # (d) Fit a model which assumes that the RESP_DIST effect follows a year-specific
 #     step function. Interpret the RESP_DIST effect, as estimated from this model.
-asthma <- mutate(asthma,
-                 rd1 = resp_dist*(0 <= time_to_event & time_to_event <= 365),
-                 rd2 = resp_dist*(365 < time_to_event & time_to_event <= 730),
-                 rd3 = resp_dist*(730 < time_to_event & time_to_event <= 1095),
-                 rd4 = resp_dist*(1095 < time_to_event & time_to_event <= 1460),
-                 rd5 = resp_dist*(1460 < time_to_event & time_to_event <= 1825),
-                 rd45 = resp_dist*(1095 < time_to_event))
-model06 <- coxph(data = asthma,
-                 formula = Surv(time_to_event, asth) ~ lbw + male + urban + 
+asthma_td <- survSplit(Surv(time_to_event,asth) ~ lbw + male + urban + resp_dist,
+                       data = asthma,
+                       cut = c(365,730,1095),
+                       episode = "tgroup")
+asthma_td <- mutate(asthma_td,
+                    rd1 = resp_dist*(tgroup == 1),
+                    rd2 = resp_dist*(tgroup == 2),
+                    rd3 = resp_dist*(tgroup == 3),
+                    rd45 = resp_dist*(tgroup == 4))
+model06 <- coxph(data = asthma_td,
+                 formula = Surv(tstart, time_to_event, asth) ~ lbw + male + urban + 
                    rd1 + rd2 + rd3 + rd45)
 summary(model06)
 
