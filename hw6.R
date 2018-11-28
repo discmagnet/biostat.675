@@ -144,13 +144,27 @@ summary(model05)
 
 # (d) Fit a model which assumes that the RESP_DIST effect follows a year-specific
 #     step function. Interpret the RESP_DIST effect, as estimated from this model.
-
+asthma <- mutate(asthma,
+                 rd1 = resp_dist*(0 <= time_to_event & time_to_event <= 365),
+                 rd2 = resp_dist*(365 < time_to_event & time_to_event <= 730),
+                 rd3 = resp_dist*(730 < time_to_event & time_to_event <= 1095),
+                 rd4 = resp_dist*(1095 < time_to_event & time_to_event <= 1460),
+                 rd5 = resp_dist*(1460 < time_to_event & time_to_event <= 1825),
+                 rd45 = resp_dist*(1095 < time_to_event))
+model06 <- coxph(data = asthma,
+                 formula = Surv(time_to_event, asth) ~ lbw + male + urban + 
+                   rd1 + rd2 + rd3 + rd45)
+summary(model06)
 
 # (e) Plot the age-specific RESP_DIST against the year mid-points. Describe the shape
 #     of the plot and its implications (if any) for modelling the RESP_DIST effect.
 
 # (f) Fit a model wherein the RESP_DIST regression coefficient is assumed to change
 #     linearly with age (scaled to years). Interpret your parameter estimates.
-
+asthma <- mutate(asthma, resp_int = resp_dist*time_to_event/365)
+model07 <- coxph(data = asthma,
+                 formula = Surv(time_to_event, asth) ~ lbw + male + urban +
+                   resp_dist + resp_int)
+summary(model07)
 # (g) Based on the model in (f), estimate the age at which children with and without
 #     RESP_DIST have equal asthma hazard.
