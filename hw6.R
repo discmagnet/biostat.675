@@ -160,6 +160,13 @@ summary(model06)
 
 # (e) Plot the age-specific RESP_DIST against the year mid-points. Describe the shape
 #     of the plot and its implications (if any) for modelling the RESP_DIST effect.
+plot_data <- data.frame(c(0.5,1.5,2.5,4),c(0.918,0.258,0.419,-1.119))
+colnames(plot_data) <- c("year","beta")
+library(ggplot2)
+plot01 <- ggplot(data = plot_data, aes(x=year, y=beta)) +
+  geom_point() +
+  geom_smooth(se = F)
+plot01
 
 # (f) Fit a model wherein the RESP_DIST regression coefficient is assumed to change
 #     linearly with age (scaled to years). Interpret your parameter estimates.
@@ -168,6 +175,3 @@ model07 <- coxph(data = asthma,
                    tt(resp_dist),
                  tt = function(x,t,...) x*t/365)
 summary(model07)
-
-# (g) Based on the model in (f), estimate the age at which children with and without
-#     RESP_DIST have equal asthma hazard.
