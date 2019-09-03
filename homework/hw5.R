@@ -7,7 +7,7 @@
 # indicator for being assigned to an airflow isolation room. AGE is recorded in
 # years.
 library(haven)
-anemia2 <- read_sas("~/WORKING_DIRECTORIES/biostat.675/anemia2.sas7bdat")
+anemia2 <- read_sas("~/WORKING_DIRECTORIES/biostat.675/datasets/anemia2.sas7bdat")
 # (a) Fit a Cox model with CSP.MTX (Zi), LAF (Li) and AGE (Ai) as covariates.
 #     Interpret each of the hazard ratios.
 library(survival)

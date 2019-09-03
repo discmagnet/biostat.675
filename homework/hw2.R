@@ -2,7 +2,7 @@
 #
 # Problem 1 - Breast Cancer Study
 
-hw1 <- read_delim("~/WORKING_DIRECTORIES/biostat.675/Breast_cancer_Table_1_2_Collet.txt",
+hw1 <- read_delim("~/WORKING_DIRECTORIES/biostat.675/datasets/Breast_cancer_Table_1_2_Collet.txt",
                   "\t", escape_double = FALSE, col_names = FALSE, trim_ws = TRUE)
 colnames(hw1) <- c("i","Xi","Di","Zi")
 library(dplyr)

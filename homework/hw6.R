@@ -21,7 +21,7 @@
 #   COMORBID: number of comorbid conditions (illnesses, not counting ESRD,
 #   existing at the time of transplant)
 library(haven)
-kidney_data <- read_sas("~/WORKING_DIRECTORIES/biostat.675/kidney_ecd_1.sas7bdat")
+kidney_data <- read_sas("~/WORKING_DIRECTORIES/biostat.675/datasets/kidney_ecd_1.sas7bdat")
 
 # FROM HOMEWORK 5.3(a)
 #     Fit a model which contains only factors known at the time of transplant (t = 0).

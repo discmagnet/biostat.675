@@ -9,7 +9,7 @@ library(survival)
 library(ggplot2)
 library(broom)
 
-anemia2 <- read_sas("~/WORKING_DIRECTORIES/biostat.675/anemia2.sas7bdat")
+anemia2 <- read_sas("~/WORKING_DIRECTORIES/biostat.675/datasets/anemia2.sas7bdat")
 
 # (a) Carry out separate two-sided log rank and Wilcoxon tests in order
 #     to determine which of the following predict time until GVHD.
